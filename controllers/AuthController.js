@@ -9,20 +9,20 @@ exports.signUp = async (req, res) => {
 
   await User.create(req.body)
 
-  res.send('Success')
+  res.json({ message: 'Success' })
 }
 
 exports.signIn = async (req, res) => {
   const user = await User.findOne({ where: { email: req.body.email } })
 
   if (user === null) {
-    return res.send('User not found!')
+    return res.json({ message: 'User not found.' })
   }
 
   const validPassword = await bcrypt.compare(req.body.password, user.password)
 
   if (!validPassword) {
-    return res.send('Password not valid!')
+    return res.json({ message: 'Password not valid.' })
   }
 
   const token = jwt.sign(
@@ -36,4 +36,8 @@ exports.signIn = async (req, res) => {
     id: user.id,
     token
   })
+}
+
+exports.verifyToken = (req, res) => {
+  res.status(200).json({ user: req.user })
 }

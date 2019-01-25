@@ -6,7 +6,7 @@ exports.isAuthenticated = async (req, res, next) => {
     req.headers.authorization && req.headers.authorization.split(' ')[1]
 
   if (token === undefined) {
-    return res.send('token not found')
+    return res.status(401).json({ message: 'Token not found.'})
   }
 
   try {
@@ -14,12 +14,14 @@ exports.isAuthenticated = async (req, res, next) => {
     const user = await User.findOne({ where: { id: decoded.id } })
 
     if (user === null) {
-      return res.send('account not found')
+      return res.status(400).json({ message: 'Account not found.'})
     }
 
     req.decoded = decoded
+    req.user = user
+
     next()
   } catch (err) {
-    res.send('error')
+    res.status(500).json({ message: 'There is an error', err})
   }
 }
